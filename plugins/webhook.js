@@ -12,10 +12,11 @@ function addHandlers(server) {
             console.log("Raw Webhook: " + JSON.stringify(webhook));
             if (webhook.repository && webhook.commits && webhook.head_commit) {
                 // Also check that the commit is on the 'develop' branch
+                var repository = webhook.repository;
+                var head = req.body.head_commit;
+
                 var ref = webhook.ref;
                 if (ref === "refs/heads/develop") {
-                    var repository = webhook.repository;
-                    var head = req.body.head_commit;
 
                     log.info("Repository " + repository.name + " has been updated by " + head.author.name + " with message: " + head.message);
                     if (updaters[repository.name]) {
