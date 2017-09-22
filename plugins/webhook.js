@@ -11,26 +11,32 @@ function addHandlers(server) {
             var webhook = req.body;
             console.log("Raw Webhook: " + JSON.stringify(webhook));
             if (webhook.repository && webhook.commits && webhook.head_commit) {
-                var repository = webhook.repository;
-                var head = req.body.head_commit;
+                // Also check that the commit is on the 'develop' branch
+                var ref = webhook.ref;
+                if (ref === "refs/heads/develop") {
+                    var repository = webhook.repository;
+                    var head = req.body.head_commit;
 
-                log.info("Repository " + repository.name + " has been updated by " + head.author.name + " with message: " + head.message);
-                if (updaters[repository.name]) {
-                    var settings = updaters[repository.name];
-                    log.info("Triggering redeploy for " + repository.name + " located at " + settings.path + " with script " + settings.script);
-                    try {
-                        exec(settings.path + "/" + settings.script, { cwd: settings.path }, (error, stdout, stderr) => {
-                            if (error) {
-                                log.error("exec error: " + error);
-                                return;
-                            }
-                            // Log these to the console only, not to log files
-                            log.info("stdout: " + stdout);
-                            log.error("stderr: " + stderr);
-                        });
-                    } catch (error) {
-                        log.error("An error occurred while running redeploy script for " + repository.name);
+                    log.info("Repository " + repository.name + " has been updated by " + head.author.name + " with message: " + head.message);
+                    if (updaters[repository.name]) {
+                        var settings = updaters[repository.name];
+                        log.info("Triggering redeploy for " + repository.name + " located at " + settings.path + " with script " + settings.script);
+                        try {
+                            exec(settings.path + "/" + settings.script, { cwd: settings.path }, (error, stdout, stderr) => {
+                                if (error) {
+                                    log.error("exec error: " + error);
+                                    return;
+                                }
+                                // Log these to the console only, not to log files
+                                log.info("stdout: " + stdout);
+                                log.error("stderr: " + stderr);
+                            });
+                        } catch (error) {
+                            log.error("An error occurred while running redeploy script for " + repository.name);
+                        }
                     }
+                } else {
+                    log.info("Repository " + repository.name + " has been updated by " + head.author.name + " on branch " + ref + " with message: " + head.message);
                 }
             } else {
                 log.info("Got a webhook, but it did not match the known github format");
