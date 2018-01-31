@@ -1,9 +1,9 @@
 const config = require('../config.json');
 const fs = require('fs');
 
-const debugmode = config.logging.debugmode;
-const writetofile = config.logging.logfile;
-const timestamp = config.logging.timestamp;
+const debugmode = true;
+const writetofile = true;
+const timestamp = true;
 
 module.exports = {
     level: 1,
@@ -45,7 +45,7 @@ function logToFile(message) {
     }
 
     if (writetofile) {
-        var path = config.logpathhidden + "lifeforcelog.txt";
+        var path = "/home/mark/live/deploy/" + "webhooklog.txt";
         // Append the log message to the file
         fs.appendFile(path, message + "\n", function (err) {
             if (err) {
