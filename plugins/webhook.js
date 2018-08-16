@@ -56,6 +56,10 @@ function addHandlers(server) {
             res.send(400);
         }
     });
+
+    server.get("/api/github", (req, res, next) => {
+        res.send(200, "This endpoint is running!");
+    });
 }
 
 /**
