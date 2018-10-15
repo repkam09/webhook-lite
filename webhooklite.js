@@ -14,7 +14,9 @@ const log = require("./utils/logger.js");
 
 // Set the app name and some other helpful variables
 const tempdir = os.tmpdir();
-const pluginpath = "./plugins/";
+
+// This is a bit of a hack to make sure the pathing is correct. The cwd should be at the level of this file.
+const pluginpath = __dirname + "/plugins/";
 
 // This variable will contain settings and api keys that are not public
 log.info("Loading settings from config.json...");
@@ -65,6 +67,11 @@ server.use(function logging(req, res, next) {
 
 // Go out and check the plugins list for endpoints to listen on
 fs.readdir(pluginpath, (err, files) => {
+    if (err || !files) {
+        console.log("Error while reading plugins directory " + err.message);
+        throw err;
+    }
+
     files.forEach(file => {
         fs.stat(pluginpath + "/" + file, (err, stats) => {
             if (!stats.isDirectory()) {
