@@ -5,6 +5,16 @@ const debugmode = true;
 const writetofile = true;
 const timestamp = true;
 
+let logpath = __dirname + "webhooklog.log";
+if (config["logging"] && config["logging"].logpath) {
+    console.log("Found logging location in config file.");
+    logpath = config["logging"].logpath;
+} else {
+    console.log("Using the default logging location");
+}
+
+console.log("Logging to " + logpath);
+
 module.exports = {
     level: 1,
     info: (message) => {
@@ -45,9 +55,8 @@ function logToFile(message) {
     }
 
     if (writetofile) {
-        var path = "/home/mark/live/deploy/" + "webhooklog.txt";
         // Append the log message to the file
-        fs.appendFile(path, message + "\n", function (err) {
+        fs.appendFile(logpath, message + "\n", function (err) {
             if (err) {
                 console.log("Error writing to file " + path + JSON.stringify(err));
             }
