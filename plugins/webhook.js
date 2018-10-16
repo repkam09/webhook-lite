@@ -29,23 +29,32 @@ function addHandlers(server) {
                 log.info("Repository " + repository.name + " has been updated by " + head.author.name + " with message: " + head.message);
                 if (updaters[repository.name]) {
                     var settings = updaters[repository.name];
-                    log.info("Triggering redeploy for " + repository.name + " located at " + settings.path + " with script " + settings.script);
-                    try {
+                    var allowed_branch = branch;
+                    if (settings.branch) {
+                        allowed_branch = settings.branch;
+                    }
 
-                        // Create the string to execute
-                        var command = settings.path + "/" + settings.script + " " + branch;
-                        exec(command, { cwd: settings.path }, (error, stdout, stderr) => {
-                            if (error) {
-                                log.error("exec error: " + error);
-                                return;
-                            }
+                    if (allowed_branch === branch) {
+                        log.info("Triggering redeploy for " + repository.name + " located at " + settings.path + " with script " + settings.script);
+                        try {
 
-                            // Log these to the console only, not to log files
-                            log.info("stdout: " + stdout);
-                            log.error("stderr: " + stderr);
-                        });
-                    } catch (error) {
-                        log.error("An error occurred while running redeploy script for " + repository.name);
+                            // Create the string to execute
+                            var command = settings.path + "/" + settings.script + " " + branch;
+                            exec(command, { cwd: settings.path }, (error, stdout, stderr) => {
+                                if (error) {
+                                    log.error("exec error: " + error);
+                                    return;
+                                }
+
+                                // Log these to the console only, not to log files
+                                log.info("stdout: " + stdout);
+                                log.error("stderr: " + stderr);
+                            });
+                        } catch (error) {
+                            log.error("An error occurred while running redeploy script for " + repository.name);
+                        }
+                    } else {
+                        log.info("Got a webhook for branch '" + branch + "' in this repository, but it did not match the configured branch: " + allowed_branch);
                     }
                 }
             } else {
