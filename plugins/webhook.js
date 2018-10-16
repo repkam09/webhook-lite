@@ -40,6 +40,7 @@ function addHandlers(server) {
 
                             // Create the string to execute
                             var command = settings.path + "/" + settings.script + " " + branch;
+                            log.info("Running deployment command " + command);
                             exec(command, { cwd: settings.path }, (error, stdout, stderr) => {
                                 if (error) {
                                     log.error("exec error: " + error);
